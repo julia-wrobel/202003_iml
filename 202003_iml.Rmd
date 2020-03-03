@@ -80,7 +80,7 @@ load(here("data/bike.RData"))
 - `r nrow(bike)` subjects, `r ncol(bike)` variables
 - `cnt` is the outcome variable
 
-```{r, message = FALSE, echo = FALSE}
+```{r, message = FALSE, echo = FALSE, out.width = "600px"}
 library(tidyverse)
 
 bike %>% 
@@ -312,38 +312,77 @@ plot(importance) +
 
 ## Global surrogate
 
+This is an interpretable model that is trained to approximate the predictions of the black box model.
+
+- draw conclusions about black box model by interpreting surrogate model
+- trains surrogate model using predictions from the black box model as the outcome
+- linear models and decision trees are good surrogates
+
+<div class="green">
+- flexible (lots of surrogate choices) and intuitive
+- $R^2$ measures how good the approximation is
+</div>
+<div class="red2">
+- unclear what $R^2$ value is good enough
+- might be good for some data points but terrible for others
+</div>
+
+
 ## Global surrogate 
 
-```{r, echo = FALSE, message = FALSE, warning = FALSE}
-pred.cervical = Predictor$new(mod, data = cervical[names(cervical) != "Biopsy"], type = "prob")
-tree.cervical = TreeSurrogate$new(pred.cervical, maxdepth = 2) 
-plot(tree.cervical) + 
-	theme(strip.text.x = element_text(size = 8))
-pred.tree.cervical  = predict(tree.cervical, cervical)["Cancer"]
-pred.cervical = getPredictionProbabilities(predict(mod, task))
+Terminal nodes of a surrogate tree for cervical cancer example. The counts in the nodes show the frequency of the black box models classifications in the nodes.
+
+- Doesn't approximate the RF well here, $R^2 = 0.19$
+
+```{r, echo = FALSE,  out.width = "400px"}
+knitr::include_graphics("figs/surrogate.png")
 ```
 
-
 ## Local surrogate (LIME)
 
-## Local surrogate (LIME)
+Local surrogate models are interpretable models that are used to explain individual predictions of black box machine learning models.
 
-## Scoped rules (Anchors)
 
-## Scoped rules (Anchors)
+<div class="green">
+- can be used for image classification tasks
+- fidelity measure tells us how reliable the surrogate is at explaining predictions in a neighborhood of interest
+</div>
+<div class="red2">
+- unclear how best to define a local neighborhood
+- explanations for similar instances can be unstable
+</div>
+- promising, but still in development phase
 
 ## Shapley values
 
-## SHAP
+Game theory based. The Shapley value is a method for assigning payouts to players depending on their contribution to the total payout. Players cooperate in a coalition and receive a certain profit from this cooperation.
 
-## Example based explanations
+- **game**: the prediction task
+- **gain**: actual prediction minus the average prediction for all instances
+- **players**: feature values that collaborate to receive the gain
+- Shapley value is the average marginal contribution of a feature value across all possible coalitions
 
-Only include this if it seems important
+<div class="green">
+- can contrast explanations for different instances
+- has solid theory
+</div>
+<div class="red2">
+- very slow
+- interpretation: Given the current set of feature values, the contribution of a feature value to the difference between the actual prediction and the mean prediction is the estimated Shapley value
+- correlated features are still a problem
+</div>
 
-## Neural Network interpretation
+
+## Shapley values
+
+Shapley values for a woman in the cervical cancer dataset. With a prediction of 0.57, this woman’s cancer probability is 0.54 above the average prediction of 0.03. The number of diagnosed STDs increased the probability the most.
+
+```{r, echo = FALSE,  out.width = "500px"}
+knitr::include_graphics("figs/shapley.png")
+```
+
 
 # Thanks!
 
-- website
 
 
